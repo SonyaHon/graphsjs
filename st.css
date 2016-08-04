@@ -16,3 +16,9 @@ body {
 	padding: 2px;
 	display: inline-block;
 }
+
+#helptext {
+	display: inline-block;
+	margin: 5px;
+	padding: 2px;
+}

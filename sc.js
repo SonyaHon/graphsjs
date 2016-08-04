@@ -47,14 +47,18 @@ var graph = {
 	draw: function() {
 		ctx.lineWidth = 3;
 		for(var i = 0; i < this.edges.length; i++) {
-			if(this.edges[i].v1.id != this.edges.v2.id) {
+			if(this.edges[i].v1.id != this.edges[i].v2.id) {
 				ctx.fillStyle = "#610D0D";
+				ctx.beginPath();
 				ctx.moveTo(this.edges[i].v1.x, this.edges[i].v1.y);
 				ctx.lineTo(this.edges[i].v2.x, this.edges[i].v2.y);
 				ctx.stroke();
 			}
-			else {
+			else if(this.edges[i].v1.id === this.edges[i].v2.id){
 				ctx.fillStyle = "#610D0D";
+				ctx.beginPath();
+				ctx.arc(this.edges[i].v1.x, this.edges[i].v2.y, 17, 0, 2*Math.PI, true);
+				ctx.stroke();
 			}
 		}
 
@@ -123,15 +127,15 @@ function updateMouse(){
 					graph.verts[i].color = "#00dd00";
 				}
 				else if (twoVertsSelection.v2 === null && 
-					twoVertsSelection.v1 != graph.verts[i].id) {
+					twoVertsSelection.v1 !== graph.verts[i].id) {
 					twoVertsSelection.v2 = graph.verts[i].id;
 					graph.verts[i].color = "#00dd00";
 					twoVertsSelection.isGood = true;
 				}
 				else if (twoVertsSelection.v2 === null &&
-					twoVertsSelection.v1 == graph.verts[i].id) {
+					twoVertsSelection.v1 === graph.verts[i].id) {
 					twoVertsSelection.v2 = graph.verts[i].id;
-					graph.verts[i].color = "#cc5200";
+					graph.verts[i].color = "#4d4dff";
 					twoVertsSelection.isGood = true;
 				}
 
