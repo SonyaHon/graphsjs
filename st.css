@@ -1,0 +1,18 @@
+body {
+	margin: 0;
+}
+
+#can {
+	border: 1px solid #ffddff;
+	margin: 0;
+	padding: 0;
+	display: block;
+	vertical-align: top;
+	float: left;
+}
+
+#menu {
+	margin: 5px;
+	padding: 2px;
+	display: inline-block;
+}
