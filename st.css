@@ -3,22 +3,36 @@ body {
 }
 
 #can {
-	border: 1px solid #ffddff;
-	margin: 0;
+	border-left: 1px solid #ffddff;
+	border-right: 1px solid #ffddff;
+	margin: 4px;
+	margin-right: 0; 
 	padding: 0;
 	display: block;
 	vertical-align: top;
 	float: left;
 }
 
+button {
+	margin: 5px 0px;
+}
+
 #menu {
-	margin: 5px;
+	margin: 4px;
 	padding: 2px;
+	padding-bottom: 0;
+	padding-top: 0;
 	display: inline-block;
+	vertical-align: top;
+	border-right: 1px solid #ffddff;
+	padding-right: 10px;
+	margin-right: 0;
+	margin-left: 0;
+	padding-left: 8px;
 }
 
 #helptext {
 	display: inline-block;
-	margin: 5px;
+	margin: 4px;
 	padding: 2px;
 }

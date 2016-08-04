@@ -1,5 +1,14 @@
 var canvas, ctx;
 
+var path = [];
+var queue = [];
+var seen = [];
+var vertsValue = [];
+var vertsPairs = [];
+var p = [];
+
+var INFINITY = 100000;
+
 var mouseEvents = {
 	isClicked: false,
 	x: null,
@@ -7,7 +16,8 @@ var mouseEvents = {
 }	
 
 var menuEvents = {
-	makeEdge: false
+	makeEdge: false,
+	fsp: false
 }
 
 var twoVertsSelection = {
@@ -41,14 +51,37 @@ var graph = {
 	insertEdge: function(v1, v2) {
 		var vs = this.verts[v1];
 		var vd = this.verts[v2];
-		this.edges.push({v1:vs, v2:vd});
+		if(vs.id < vd.id)
+			this.edges.push({v1:vs, v2:vd, color:"#610D0D"});
+		else
+			this.edges.push({v1:vd, v2:vs, color:"#610D0D"});
+	},
+
+	clear: function() {
+		this.verts.length = 0;
+		this.edges.length = 0;
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
 	},
 	
+	getEdgeByVerts: function(id1, id2) {
+		for(var i = 0; i < this.edges.length; i++) {
+			if(this.edges[i].v1.id == id1 && this.edges[i].v2.id == id2) {
+				return i;
+			}
+			else if (this.edges[i].v1.id == id2 && this.edges[i].v2.id == id1) {
+				return i;
+			}
+			else {
+				return null;
+			}
+		}
+	},
+
 	draw: function() {
 		ctx.lineWidth = 3;
 		for(var i = 0; i < this.edges.length; i++) {
 			if(this.edges[i].v1.id != this.edges[i].v2.id) {
-				ctx.fillStyle = "#610D0D";
+				ctx.strokeStyle = this.edges[i].color;
 				ctx.beginPath();
 				ctx.moveTo(this.edges[i].v1.x, this.edges[i].v1.y);
 				ctx.lineTo(this.edges[i].v2.x, this.edges[i].v2.y);
@@ -87,9 +120,12 @@ var graph = {
 
 function main (){
 	canvas = document.getElementById("can");
-	canvas.height = $(window).height();
-	canvas.width = ($(window).width() / 3) * 2;
+	canvas.height = $(document).outerHeight() - 10;
+	canvas.width = ($(document).width() / 3) * 2;
 	ctx = canvas.getContext("2d");
+
+	$("#menu").outerHeight(canvas.height - 2);
+	$("#helptext").outerHeight(canvas.height);
 
 	canvas.addEventListener("click", function(evt) {
 		if(!mouseEvents.isClicked) {
@@ -101,6 +137,17 @@ function main (){
 
 	document.getElementById("makeEdgeButton").onclick = function(){
 		menuEvents.makeEdge = true;
+	};
+
+	document.getElementById("delButton").onclick = function() {
+		var answer = confirm("Are you sure?");
+		if(answer == true) {
+			graph.clear();
+		}
+	};
+
+	document.getElementById("findPathButton").onclick = function() {
+		menuEvents.fsp = true;
 	};
 
 	graph.init();
@@ -138,6 +185,11 @@ function updateMouse(){
 					graph.verts[i].color = "#4d4dff";
 					twoVertsSelection.isGood = true;
 				}
+				else if(twoVertsSelection.isGood === true) {
+					twoVertsSelection.clear();
+					twoVertsSelection.v1 = graph.verts[i].id;
+					graph.verts[i].color = "#00dd00";
+				}
 
 				return;
 			}
@@ -152,8 +204,94 @@ function updateLogic() {
 		graph.insertEdge(twoVertsSelection.v1, twoVertsSelection.v2);
 		twoVertsSelection.clear();
 	}
+	else if(twoVertsSelection.isGood === true && menuEvents.fsp === true) {
+		console.log(graph.edges[0].color);
+		var pathL = deictra(twoVertsSelection.v1, twoVertsSelection.v2);
+		console.log(graph.edges[0].color);
+		twoVertsSelection.clear();
+	}
 
 	if(menuEvents.makeEdge === true) {
 		menuEvents.makeEdge = false;
+	}
+	if(menuEvents.fsp === true) {
+		menuEvents.fsp = false;
+	}
+}
+
+function deictra(id1, id2) {
+
+	seen.length = 0;
+	path.length = 0;
+	queue.length = 0;
+	vertsValue.length = 0;
+    vertsPairs.length = 0;;
+    p.length = 0;
+
+	if(id1 > id2) {
+		var temp = id1;
+		id1 = id2;
+		id2 = temp;
+	}
+
+	for(var i = 0; i < graph.verts.length; i++) {
+		seen[i] = false;		
+	}
+
+	for(var i = 0; i < graph.verts.length; i++) {
+		vertsValue[i] = INFINITY;	
+	}
+	for(var i = 0; i < graph.edges.length; i++) {
+		vertsPairs[graph.edges[i].v1.id] = [];
+		vertsPairs[graph.edges[i].v1.id].push(graph.edges[i].v2.id);
+		vertsPairs[graph.edges[i].v2.id] = [];
+		vertsPairs[graph.edges[i].v2.id].push(graph.edges[i].v1.id);
+	}
+
+	for(var i = 0; i < graph.verts.length; i++) {
+		p[i] = id1;
+	}
+
+	queue.push(id1);
+	vertsValue[id1] = 0;
+
+	while(queue.length) {
+		var w = queue.shift();
+		doVert(w);
+	}
+
+	findRoot(id1, id2, vertsValue[id2]);
+	console.log(graph.edges);
+	graph.edges[graph.getEdgeByVerts(id1, path[0])].color = "#4d4dff";
+	console.log(path[0], path[1]);
+	//graph.edges[graph.getEdgeByVerts(path[0], id1)].color = "4d4dff";
+	//for(var k = 0; k < path.length - 1; k++) {
+	//	console.log(graph.getEdgeByVerts(path[k], path[k+1]));
+	//	graph.edges[graph.getEdgeByVerts(path[k], path[k+1])].color = "#4d4dff";	
+	//} 
+	return vertsValue[id2];
+}
+
+function findRoot(id1, id2, pathL) {
+	while(id1 !== id2) {
+		path.push(p[id1]);
+		id1 = p[id1];
+	}
+}
+
+function doVert(w) {
+	if(seen[w] === true) {
+		return;
+	}
+
+	seen[w] = true;
+
+	for(var i = 0; i < vertsPairs[w].length; i++) {
+		if(vertsValue[vertsPairs[w][i]] >= vertsValue[w] + 1) {
+			vertsValue[vertsPairs[w][i]] = vertsValue[w] + 1;
+			p[w] = vertsPairs[w][i];
+		}
+
+		queue.push(vertsPairs[w][i]);
 	}
 }
