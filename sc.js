@@ -71,10 +71,9 @@ var graph = {
 			else if (this.edges[i].v1.id == id2 && this.edges[i].v2.id == id1) {
 				return i;
 			}
-			else {
-				return null;
-			}
 		}
+
+		return null;
 	},
 
 	draw: function() {
@@ -263,12 +262,12 @@ function deictra(id1, id2) {
 	findRoot(id1, id2, vertsValue[id2]);
 	console.log(graph.edges);
 	graph.edges[graph.getEdgeByVerts(id1, path[0])].color = "#4d4dff";
-	console.log(path[0], path[1]);
+	//console.log(path[0], path[1]);
 	//graph.edges[graph.getEdgeByVerts(path[0], id1)].color = "4d4dff";
-	//for(var k = 0; k < path.length - 1; k++) {
+	for(var k = 0; k < path.length - 1; k++) {
 	//	console.log(graph.getEdgeByVerts(path[k], path[k+1]));
-	//	graph.edges[graph.getEdgeByVerts(path[k], path[k+1])].color = "#4d4dff";	
-	//} 
+		graph.edges[graph.getEdgeByVerts(path[k], path[k+1])].color = "#4d4dff";	
+	} 
 	return vertsValue[id2];
 }
 
